@@ -21,8 +21,9 @@ interface IConfig {
 }
 
 // Paths
-const ROOT = path.resolve(__dirname, '..')
 const CWD = process.cwd()
+const ROOT = path.resolve(__dirname, '..')
+const CONFIGS = path.resolve(ROOT, 'configs')
 
 program
   .option(
@@ -141,5 +142,5 @@ function installPackages(
 }
 
 function addFiles(files: IPreset['files']) {
-  shell.cp('-n', files.map(file => path.resolve(ROOT, file)), CWD)
+  shell.cp('-n', files.map(file => path.resolve(CONFIGS, file)), CWD)
 }
