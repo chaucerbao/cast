@@ -99,6 +99,10 @@ program
 
 program.parse(process.argv)
 
+if (program.args.length === 0) {
+  program.help()
+}
+
 function validateEnvironment(env: { configPath: string }) {
   try {
     fs.accessSync(env.configPath)
