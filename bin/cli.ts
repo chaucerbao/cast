@@ -24,48 +24,37 @@ interface IConfig {
 const ROOT = path.resolve(__dirname, '..')
 const CWD = process.cwd()
 
-// Check for a compatible environment
-const environmentErrors = checkEnvironment()
-if (environmentErrors) {
-  console.error(environmentErrors)
-  process.exit(1)
-}
-
 program
-  .arguments('<preset...>')
   .option(
     '-c, --config <cast.json>',
-    'Config file',
+    'Cast config file',
     path.resolve(ROOT, 'cast.json')
   )
-  .action((presets: string[]) => {
-    const devDependencies: string[] = []
-    const dependencies: string[] = []
-    const files: string[] = []
-    let config: IConfig
+  .arguments('<preset...>')
+  .action((selectedPresets: string[]) => {
+    const devDependencies: IPreset['devDependencies'] = []
+    const dependencies: IPreset['dependencies'] = []
+    const files: IPreset['files'] = []
+    const configPath = path.resolve(program.config)
 
-    // Attempt to retrieve the config file
-    try {
-      config = require(path.resolve(program.config))
-    } catch (error) {
-      console.error(`Unable to locate '${program.config}'`)
+    // Check for a compatible environment
+    const environmentErrors = validateEnvironment({ configPath })
+    if (environmentErrors) {
+      console.error(environmentErrors)
       process.exit(1)
     }
 
-    // Built the dependency and file lists
-    presets.forEach(preset => {
+    // Built the dependency and file lists from presets
+    const { presets } = require(configPath) as IConfig
+
+    selectedPresets.forEach(selectedPreset => {
       const {
         devDependencies: presetDevDependencies,
         dependencies: presetDependencies,
         files: presetFiles
       } = Object.assign(
-        {},
-        {
-          devDependencies: [],
-          dependencies: [],
-          files: []
-        },
-        config.presets[preset]
+        { devDependencies: [], dependencies: [], files: [] },
+        presets[selectedPreset]
       )
 
       devDependencies.push(...presetDevDependencies)
@@ -108,21 +97,23 @@ program
     })
   })
 
-if (process.argv.length === 2) {
-  program.help()
-}
-
 program.parse(process.argv)
 
-function checkEnvironment() {
+function validateEnvironment(env: { configPath: string }) {
+  try {
+    fs.accessSync(env.configPath)
+  } catch (error) {
+    return `Unable to locate '${program.config}'`
+  }
+
   try {
     fs.accessSync(path.resolve(CWD, 'package.json'))
   } catch (error) {
-    return "Unable to locate 'package.json'"
+    return `Unable to locate 'package.json'`
   }
 
   if (!shell.which('npm')) {
-    return "Unable to locate 'npm'"
+    return `Unable to locate 'npm'`
   }
 
   return
