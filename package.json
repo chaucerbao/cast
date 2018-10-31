@@ -7,11 +7,22 @@
   "bin": {
     "cast": "bin/cli.js"
   },
+  "files": [
+    "bin/cli.js"
+  ],
   "devDependencies": {
-    "prettier": "^1.14.3"
+    "@types/node": "^10.12.1",
+    "@types/shelljs": "^0.8.0",
+    "prettier": "^1.14.3",
+    "typescript": "^3.1.5"
   },
   "dependencies": {
     "commander": "^2.19.0",
     "shelljs": "^0.8.2"
+  },
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   }
 }

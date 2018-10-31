@@ -1,14 +1,26 @@
 #!/usr/bin/env node
 
 // Dependencies
-const fs = require('fs')
-const path = require('path')
-const program = require('commander')
-const readline = require('readline')
-const shell = require('shelljs')
+import fs from 'fs'
+import path from 'path'
+import program from 'commander'
+import readline from 'readline'
+import shell from 'shelljs'
+
+// Type Definitions
+interface IPreset {
+  devDependencies: string[]
+  dependencies: string[]
+  files: string[]
+}
+
+interface IConfig {
+  presets: {
+    [name: string]: IPreset
+  }
+}
 
 // Paths
-const packageJson = require('../package.json')
 const ROOT = path.resolve(__dirname, '..')
 const CWD = process.cwd()
 
@@ -21,12 +33,16 @@ if (environmentErrors) {
 
 program
   .arguments('<preset...>')
-  .option('-c, --config <cast.json>', 'Config file', path.resolve(ROOT, 'cast.json'))
-  .action(presets => {
-    const devDependencies = []
-    const dependencies = []
-    const files = []
-    let config
+  .option(
+    '-c, --config <cast.json>',
+    'Config file',
+    path.resolve(ROOT, 'cast.json')
+  )
+  .action((presets: string[]) => {
+    const devDependencies: string[] = []
+    const dependencies: string[] = []
+    const files: string[] = []
+    let config: IConfig
 
     // Attempt to retrieve the config file
     try {
@@ -66,7 +82,7 @@ program
     console.log('Packages:')
     ;[...devDependencies, ...dependencies]
       .sort()
-      .forEach(package => console.log(`  ${package}`))
+      .forEach(packageName => console.log(`  ${packageName}`))
     console.log()
 
     // Install Packages?
@@ -91,7 +107,6 @@ program
       })
     })
   })
-  .version(packageJson.version)
 
 if (process.argv.length === 2) {
   program.help()
@@ -113,11 +128,14 @@ function checkEnvironment() {
   return
 }
 
-function saidYes(answer) {
+function saidYes(answer: string) {
   return /y/i.test(answer)
 }
 
-function installPackages(devDependencies, dependencies) {
+function installPackages(
+  devDependencies: IPreset['devDependencies'],
+  dependencies: IPreset['dependencies']
+) {
   if (devDependencies.length > 0) {
     shell.exec(`npm install --save-dev ${devDependencies.join(' ')}`)
   }
@@ -127,6 +145,6 @@ function installPackages(devDependencies, dependencies) {
   }
 }
 
-function addFiles(files) {
+function addFiles(files: IPreset['files']) {
   shell.cp('-n', files.map(file => path.resolve(ROOT, file)), CWD)
 }
