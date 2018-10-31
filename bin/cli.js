@@ -19,75 +19,85 @@ if (environmentErrors) {
   process.exit(1)
 }
 
-program.arguments('<preset...>').action(presets => {
-  const devDependencies = []
-  const dependencies = []
-  const files = []
+program
+  .arguments('<preset...>')
+  .option('-c, --config <cast.json>', 'Config file', path.resolve(ROOT, 'cast.json'))
+  .action(presets => {
+    const devDependencies = []
+    const dependencies = []
+    const files = []
+    let config
 
-  presets.forEach(preset => {
-    switch (preset) {
-      case 'pre-commit':
-        devDependencies.push('husky', 'lint-staged')
-        files.push('.huskyrc', '.lintstagedrc')
-        break
-      case 'prettier':
-        devDependencies.push('prettier')
-        files.push('.prettierrc')
-        break
-      case 'stylelint':
-        devDependencies.push(
-          'stylelint',
-          'stylelint-config-concentric-order',
-          'stylelint-config-prettier',
-          'stylelint-config-standard',
-          'stylelint-scss'
-        )
-        files.push('.stylelintrc')
-        break
-      case 'tslint':
-        devDependencies.push('tslint', 'tslint-config-prettier', 'tslint-react')
-        files.push('tslint.json')
-        break
-      default:
+    // Attempt to retrieve the config file
+    try {
+      config = require(path.resolve(program.config))
+    } catch (error) {
+      console.error(`Unable to locate '${program.config}'`)
+      process.exit(1)
     }
-  })
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  })
+    // Built the dependency and file lists
+    presets.forEach(preset => {
+      const {
+        devDependencies: presetDevDependencies,
+        dependencies: presetDependencies,
+        files: presetFiles
+      } = Object.assign(
+        {},
+        {
+          devDependencies: [],
+          dependencies: [],
+          files: []
+        },
+        config.presets[preset]
+      )
 
-  // List Packages
-  console.log('Packages:')
-  ;[...devDependencies, ...dependencies]
-    .sort()
-    .forEach(package => console.log(`  ${package}`))
-  console.log()
+      devDependencies.push(...presetDevDependencies)
+      dependencies.push(...presetDependencies)
+      files.push(...presetFiles)
+    })
 
-  // Install Packages?
-  rl.question('Install packages [y/N]? ', packageAnswer => {
-    // List Files
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    })
+
+    // List Packages
+    console.log('Packages:')
+    ;[...devDependencies, ...dependencies]
+      .sort()
+      .forEach(package => console.log(`  ${package}`))
     console.log()
-    console.log('Files:')
-    files.sort().forEach(file => console.log(`  ${file}`))
-    console.log()
 
-    // Add Files?
-    rl.question('Add configuration files [y/N]? ', fileAnswer => {
-      rl.close()
+    // Install Packages?
+    rl.question('Install packages [y/N]? ', packageAnswer => {
+      // List Files
+      console.log()
+      console.log('Files:')
+      files.sort().forEach(file => console.log(`  ${file}`))
+      console.log()
 
-      if (saidYes(packageAnswer)) {
-        installPackages(devDependencies, dependencies)
-      }
+      // Add Files?
+      rl.question('Add configuration files [y/N]? ', fileAnswer => {
+        rl.close()
 
-      if (saidYes(fileAnswer)) {
-        addFiles(files)
-      }
+        if (saidYes(packageAnswer)) {
+          installPackages(devDependencies, dependencies)
+        }
+
+        if (saidYes(fileAnswer)) {
+          addFiles(files)
+        }
+      })
     })
   })
-})
+  .version(packageJson.version)
 
-program.version(packageJson.version)
+if (process.argv.length === 2) {
+  program.help()
+}
+
+program.parse(process.argv)
 
 function checkEnvironment() {
   try {
@@ -120,9 +130,3 @@ function installPackages(devDependencies, dependencies) {
 function addFiles(files) {
   shell.cp('-n', files.map(file => path.resolve(ROOT, file)), CWD)
 }
-
-if (process.argv.length === 2) {
-  program.help()
-}
-
-program.parse(process.argv)

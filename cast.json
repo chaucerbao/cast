@@ -1,0 +1,26 @@
+{
+  "presets": {
+    "pre-commit": {
+      "devDependencies": ["husky", "lint-staged"],
+      "files": [".huskyrc", ".lintstagedrc"]
+    },
+    "prettier": {
+      "devDependencies": ["prettier"],
+      "files": [".prettierrc"]
+    },
+    "stylelint": {
+      "devDependencies": [
+        "stylelint",
+        "stylelint-config-concentric-order",
+        "stylelint-config-prettier",
+        "stylelint-config-standard",
+        "stylelint-scss"
+      ],
+      "files": [".stylelintrc"]
+    },
+    "tslint": {
+      "devDependencies": ["tslint", "tslint-config-prettier", "tslint-react"],
+      "files": ["tslint.json"]
+    }
+  }
+}
