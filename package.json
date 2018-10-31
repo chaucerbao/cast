@@ -1,0 +1,17 @@
+{
+  "name": "@chaucerbao/cast",
+  "version": "0.1.0",
+  "description": "Install package and configuration defaults for various tools to kick-start your project",
+  "author": "Alvin Chan <no@email.com>",
+  "license": "ISC",
+  "bin": {
+    "cast": "bin/cli.js"
+  },
+  "devDependencies": {
+    "prettier": "^1.14.3"
+  },
+  "dependencies": {
+    "commander": "^2.19.0",
+    "shelljs": "^0.8.2"
+  }
+}
