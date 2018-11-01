@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 // Dependencies
+import program from 'commander'
 import fs from 'fs'
 import path from 'path'
-import program from 'commander'
 import readline from 'readline'
 import shell from 'shelljs'
 
@@ -53,10 +53,12 @@ program
         devDependencies: presetDevDependencies,
         dependencies: presetDependencies,
         files: presetFiles
-      } = Object.assign(
-        { devDependencies: [], dependencies: [], files: [] },
-        presets[selectedPreset]
-      )
+      } = {
+        dependencies: [],
+        devDependencies: [],
+        files: [],
+        ...presets[selectedPreset]
+      }
 
       devDependencies.push(...presetDevDependencies)
       dependencies.push(...presetDependencies)

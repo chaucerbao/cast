@@ -8,12 +8,44 @@
     "cast": "bin/cli.js"
   },
   "files": [
-    "bin/cli.js"
+    "bin/cli.js",
+    "configs/*",
+    "cast.json"
   ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "linters": {
+      "*.ts": [
+        "prettier --write",
+        "tslint --fix",
+        "git add"
+      ],
+      ".*rc": [
+        "prettier --write --parser json",
+        "git add"
+      ],
+      "*.{json,md}": [
+        "prettier --write",
+        "git add"
+      ]
+    },
+    "ignore": [
+      "package.json",
+      "package-lock.json"
+    ]
+  },
   "devDependencies": {
     "@types/node": "^10.12.1",
     "@types/shelljs": "^0.8.0",
+    "husky": "^1.1.2",
+    "lint-staged": "^8.0.4",
     "prettier": "^1.14.3",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
     "typescript": "^3.1.5"
   },
   "dependencies": {
