@@ -5,3 +5,9 @@ Have you ever been excited to start a brand new project, then brought over tools
 Stop it.
 
 Cast will allow you to deploy preset tool combinations and their configuration files.
+
+## Usage
+
+```
+npx github:chaucerbao/cast <presets...>
+```
