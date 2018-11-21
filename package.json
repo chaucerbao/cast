@@ -55,6 +55,6 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "prepare": "npm run build"
   }
 }
