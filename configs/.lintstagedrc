@@ -1,8 +1,8 @@
 {
   "linters": {
-    "*.jsx?": ["prettier --write", "git add"],
-    "*.tsx?": ["prettier --write", "tslint --fix", "git add"],
-    "*.s?css": ["prettier --write", "stylelint --fix", "git add"],
+    "*.{js,jsx}": ["prettier --write", "git add"],
+    "*.{ts,tsx}": ["prettier --write", "tslint --fix", "git add"],
+    "*.{css,scss}": ["prettier --write", "stylelint --fix", "git add"],
     "*.{json,md}": ["prettier --write", "git add"]
   },
   "ignore": ["package.json", "package-lock.json"]
