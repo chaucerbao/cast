@@ -1,5 +1,8 @@
 {
   "presets": {
+    "browserslist": {
+      "files": [".browserslistrc"]
+    },
     "pre-commit": {
       "devDependencies": ["husky", "lint-staged"],
       "files": [".huskyrc", ".lintstagedrc"]
