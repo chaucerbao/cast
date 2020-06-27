@@ -21,6 +21,7 @@
         "stylelint-config-concentric-order",
         "stylelint-config-prettier",
         "stylelint-config-standard",
+        "stylelint-prettier",
         "stylelint-scss"
       ],
       "files": [".stylelintrc"]
