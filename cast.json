@@ -4,8 +4,8 @@
       "files": [".browserslistrc"]
     },
     "eslint": {
-      "devDependencies": ["@chaucerbao/eslint-config"],
-      "files": [".eslintrc"]
+      "devDependencies": ["@chaucerbao/eslint-config", "prettier"],
+      "files": [".eslintrc", ".prettierrc"]
     },
     "pre-commit": {
       "devDependencies": ["husky", "lint-staged"],
@@ -17,14 +17,11 @@
     },
     "stylelint": {
       "devDependencies": [
+        "prettier",
         "stylelint",
-        "stylelint-config-concentric-order",
-        "stylelint-config-prettier",
-        "stylelint-config-standard",
-        "stylelint-prettier",
-        "stylelint-scss"
+        "stylelint-config-concentric-order"
       ],
-      "files": [".stylelintrc"]
+      "files": [".prettierrc", ".stylelintrc"]
     }
   }
 }
