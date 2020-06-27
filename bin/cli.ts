@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 
 // Dependencies
-import program from 'commander'
+import { Command } from 'commander'
 import fs from 'fs'
 import path from 'path'
 import readline from 'readline'
 import shell from 'shelljs'
 
 // Type Definitions
-interface IPreset {
+interface Preset {
   devDependencies: string[]
   dependencies: string[]
   files: string[]
 }
 
-interface IConfig {
+interface Config {
   presets: {
-    [name: string]: IPreset
+    [name: string]: Preset
   }
 }
 
@@ -25,6 +25,9 @@ const CWD = process.cwd()
 const ROOT = path.resolve(__dirname, '..')
 const CONFIGS = path.resolve(ROOT, 'configs')
 
+// Command
+const program = new Command()
+
 program
   .option(
     '-c, --config <cast.json>',
@@ -32,10 +35,10 @@ program
     path.resolve(ROOT, 'cast.json')
   )
   .arguments('<preset...>')
-  .action((selectedPresets: string[]) => {
-    const devDependencies: IPreset['devDependencies'] = []
-    const dependencies: IPreset['dependencies'] = []
-    const files: IPreset['files'] = []
+  .action((args: string[]) => {
+    const devDependencies: string[] = []
+    const dependencies: string[] = []
+    const files: string[] = []
     const configPath = path.resolve(program.config)
 
     // Check for a compatible environment
@@ -45,48 +48,41 @@ program
       process.exit(1)
     }
 
-    // Built the dependency and file lists from presets
-    const { presets } = require(configPath) as IConfig
+    // Build the dependency and file lists from presets
+    const { presets } = require(configPath) as Config
 
-    selectedPresets.forEach(selectedPreset => {
-      const {
-        devDependencies: presetDevDependencies,
-        dependencies: presetDependencies,
-        files: presetFiles
-      } = {
-        dependencies: [],
-        devDependencies: [],
-        files: [],
-        ...presets[selectedPreset]
+    args.forEach((arg) => {
+      const preset = presets[arg]
+
+      if (preset) {
+        devDependencies.push(...(preset.devDependencies ?? []))
+        dependencies.push(...(preset.dependencies ?? []))
+        files.push(...(preset.files ?? []))
       }
-
-      devDependencies.push(...presetDevDependencies)
-      dependencies.push(...presetDependencies)
-      files.push(...presetFiles)
     })
 
     const rl = readline.createInterface({
       input: process.stdin,
-      output: process.stdout
+      output: process.stdout,
     })
 
     // List Packages
     console.log('Packages:')
     ;[...devDependencies, ...dependencies]
       .sort()
-      .forEach(packageName => console.log(`  ${packageName}`))
+      .forEach((packageName) => console.log(`• ${packageName}`))
     console.log()
 
     // Install Packages?
-    rl.question('Install packages [y/N]? ', packageAnswer => {
+    rl.question('Install packages [y/N]? ', (packageAnswer) => {
       // List Files
       console.log()
       console.log('Files:')
-      files.sort().forEach(file => console.log(`  ${file}`))
+      files.sort().forEach((file) => console.log(`• ${file}`))
       console.log()
 
       // Add Files?
-      rl.question('Add configuration files [y/N]? ', fileAnswer => {
+      rl.question('Add configuration files [y/N]? ', (fileAnswer) => {
         rl.close()
 
         if (saidYes(packageAnswer)) {
@@ -102,9 +98,7 @@ program
 
 program.parse(process.argv)
 
-if (program.args.length === 0) {
-  program.help()
-}
+if (program.args.length === 0) program.help()
 
 function validateEnvironment(env: { configPath: string }) {
   try {
@@ -130,19 +124,18 @@ function saidYes(answer: string) {
   return /y/i.test(answer)
 }
 
-function installPackages(
-  devDependencies: IPreset['devDependencies'],
-  dependencies: IPreset['dependencies']
-) {
-  if (devDependencies.length > 0) {
+function installPackages(devDependencies: string[], dependencies: string[]) {
+  if (devDependencies.length > 0)
     shell.exec(`npm install --save-dev ${devDependencies.join(' ')}`)
-  }
 
-  if (dependencies.length > 0) {
+  if (dependencies.length > 0)
     shell.exec(`npm install --save ${dependencies.join(' ')}`)
-  }
 }
 
-function addFiles(files: IPreset['files']) {
-  shell.cp('-n', files.map(file => path.resolve(CONFIGS, file)), CWD)
+function addFiles(files: Preset['files']) {
+  shell.cp(
+    '-n',
+    files.map((file) => path.resolve(CONFIGS, file)),
+    CWD
+  )
 }
