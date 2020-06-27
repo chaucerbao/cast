@@ -17,6 +17,7 @@
     },
     "stylelint": {
       "devDependencies": [
+        "@chaucerbao/stylelint-config",
         "prettier",
         "stylelint",
         "stylelint-config-concentric-order"
