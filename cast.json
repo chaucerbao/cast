@@ -24,10 +24,6 @@
         "stylelint-scss"
       ],
       "files": [".stylelintrc"]
-    },
-    "tslint": {
-      "devDependencies": ["tslint", "tslint-config-prettier", "tslint-react"],
-      "files": ["tslint.json"]
     }
   }
 }
